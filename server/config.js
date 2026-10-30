@@ -1,0 +1,3 @@
+const WHATSAPP_NUMBER = '918966996674';
+
+module.exports = { WHATSAPP_NUMBER };

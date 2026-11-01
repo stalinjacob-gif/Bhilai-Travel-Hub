@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import premiumSedanPhoto from './assets/vehicles/premium-sedan.jpg';
 import suvPhoto from './assets/vehicles/suv.jpg';
 import mpvPhoto from './assets/vehicles/mpv.jpg';
+import bhilaiTravelHubLogo from './assets/bhilai-travel-hub-logo.png';
 import './styles.css';
 import './interface.css';
 
@@ -529,8 +530,7 @@ function App() {
         <div className="header-inner">
           <div className="header-start">
             <a className="brand" href="#top" onClick={(event) => { event.preventDefault(); scrollToSection('top'); }} aria-label="Bhilai Travel Hub home">
-              <span className="brand-mark" aria-hidden="true">B</span>
-              <span>Bhilai <b>Travel Hub</b><small>Rides made easy</small></span>
+              <img className="brand-logo" src={bhilaiTravelHubLogo} alt="Bhilai Travel Hub, Chhattisgarh" />
             </a>
             <a className="button button-primary header-cta" href="#book" onClick={(event) => { event.preventDefault(); openBooking(); }}>Plan a ride <span aria-hidden="true">↗</span></a>
           </div>
@@ -771,7 +771,7 @@ function App() {
       </main>
 
       <footer className="site-footer">
-        <div className="footer-main"><a className="brand brand-footer" href="#top" onClick={(event) => { event.preventDefault(); scrollToSection('top'); }}><span className="brand-mark">B</span><span>Bhilai <b>Travel Hub</b><small>Rides made easy</small></span></a><p>Local rides and self-drive rentals across Bhilai, Durg and Raipur.</p><div className="footer-links">{NAV_ITEMS.map(([id, label]) => <button key={id} onClick={() => scrollToSection(id)}>{label}</button>)}</div></div>
+        <div className="footer-main"><a className="brand brand-footer" href="#top" onClick={(event) => { event.preventDefault(); scrollToSection('top'); }} aria-label="Bhilai Travel Hub home"><img className="brand-logo" src={bhilaiTravelHubLogo} alt="Bhilai Travel Hub, Chhattisgarh" /></a><p>Local rides and self-drive rentals across Bhilai, Durg and Raipur.</p><div className="footer-links">{NAV_ITEMS.map(([id, label]) => <button key={id} onClick={() => scrollToSection(id)}>{label}</button>)}</div></div>
         <div className="footer-bottom"><span>© 2026 Bhilai Travel Hub</span><span>Made for the roads around home.</span></div>
       </footer>
       <BookingAssistant config={config} />

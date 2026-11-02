@@ -72,7 +72,6 @@ const EMPTY_TRIP = {
   luggage: '1',
   category: 'sedan',
   name: '',
-  email: '',
   notes: ''
 };
 
@@ -91,10 +90,6 @@ function localDateTimeMin() {
 
 function scrollToSection(id) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function emailDraftUrl(to, subject, body) {
-  return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 function whatsappDraftUrl(phone, message) {
@@ -367,38 +362,18 @@ function BookingAssistant({ config }) {
 }
 
 function RequestDraft({ config, subject, body }) {
-  const [copied, setCopied] = useState(false);
-  const [copyError, setCopyError] = useState('');
   const detailsId = `request-details-${subject.replace(/\W/g, '-').toLowerCase()}`;
   const whatsappNumber = (config.whatsapp || '').replace(/\D/g, '');
   const whatsappReady = /^\d{8,15}$/.test(whatsappNumber);
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(body);
-      setCopied(true);
-      setCopyError('');
-    } catch {
-      document.getElementById(detailsId)?.select();
-      setCopyError('Automatic copy is unavailable. The message is selected so you can copy and paste it into WhatsApp.');
-    }
-  };
 
   return (
     <div className="draft-panel">
-      <strong>Your booking message is ready</strong>
+      <h3>Your booking message is ready</h3>
       <p>Open WhatsApp, review the details, then tap <b>Send</b>. This site does not send messages automatically.</p>
       {!whatsappReady && <Notice tone="error">WhatsApp booking is not configured. Check the business number in the server configuration.</Notice>}
-      <div className="draft-actions">
-        {whatsappReady && <>
-          <a className="button button-primary button-small" href={whatsappDraftUrl(whatsappNumber, body)} target="_blank" rel="noopener noreferrer">Send request on WhatsApp</a>
-        </>}
-        {config.email && <>
-          <a className="button button-secondary button-small" href={emailDraftUrl(config.email, subject, body)} target="_blank" rel="noopener noreferrer">Use email instead</a>
-          <a className="button button-quiet button-small" href={`mailto:${encodeURIComponent(config.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}>Email app</a>
-        </>}
-        <button className="button button-quiet button-small" type="button" onClick={copy}>{copied ? 'Copied' : 'Copy message'}</button>
-      </div>
-      {copyError && <p className="form-error">{copyError}</p>}
+      {whatsappReady && <div className="draft-actions">
+        <a className="button button-primary button-small" href={whatsappDraftUrl(whatsappNumber, body)} target="_blank" rel="noopener noreferrer">Send request on WhatsApp</a>
+      </div>}
       <label htmlFor={detailsId}>WhatsApp message</label>
       <textarea id={detailsId} rows="7" readOnly value={body} />
     </div>
@@ -464,7 +439,6 @@ function App() {
       `Time: ${pickupDateTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`,
       `Passengers: ${trip.passengers}`,
       `Customer name: ${trip.name.trim() || 'Not provided'}`,
-      `Reply email: ${trip.email.trim() || 'Not provided'}`,
       `Trip type: ${trip.tripType}`,
       `Bags: ${trip.luggage || 0}`,
       `Vehicle preference: ${CATEGORIES[trip.category]}`,
@@ -482,7 +456,6 @@ function App() {
         'Hello Bhilai Travel Hub, I would like to request a self-drive rental.',
         '',
         `Name: ${rental.name.trim() || 'Not provided'}`,
-        `Reply email: ${rental.email.trim() || 'Not provided'}`,
         `Vehicle category: ${CATEGORIES[rental.vehicle.category] || 'Vehicle'}`,
         `Pickup date: ${rental.start}`,
         `Return date: ${rental.end}`
@@ -556,6 +529,26 @@ function App() {
                 <button className="button button-lime" type="button" onClick={() => openBooking()}>Book a cab <span aria-hidden="true">→</span></button>
                 <button className="button button-glass" type="button" onClick={() => scrollToSection('self-drive')}>Explore self-drive</button>
               </div>
+              <div className="hero-airport-fares" aria-label="Airport one-way fares">
+                <div className="hero-airport-fares-heading">
+                  <b>Airport rides · one way</b>
+                  <span>Durg / Bhilai ↔ Raipur Airport</span>
+                </div>
+                <div className="hero-airport-fare-options">
+                  {AIRPORT_FARES.map(({ name, fare, category }) => (
+                    <button
+                      key={category}
+                      type="button"
+                      onClick={() => openAirportBooking('drop', category)}
+                      aria-label={`Request airport ride in ${name} for ₹${fare.toLocaleString('en-IN')} one way`}
+                    >
+                      <span>{name}</span>
+                      <b>₹{fare.toLocaleString('en-IN')}</b>
+                    </button>
+                  ))}
+                </div>
+                <small>Same fare for airport pickup and drop · Tap a fare to book</small>
+              </div>
               <div className="hero-trust"><span>✓ No account needed</span><span>✓ Send your request in WhatsApp</span></div>
             </div>
             <div className="hero-art" aria-hidden="true">
@@ -614,7 +607,6 @@ function App() {
                 <div className="field"><label htmlFor="bags">Bags</label><select id="bags" value={trip.luggage} onChange={setTripField('luggage')}>{[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((number) => <option key={number} value={number}>{number} {number === 1 ? 'bag' : 'bags'}</option>)}</select></div>
                 <div className="field"><label htmlFor="vehiclePreference">Vehicle preference</label><select id="vehiclePreference" value={trip.category} onChange={setTripField('category')}>{Object.entries(CATEGORIES).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select></div>
                 <div className="field"><label htmlFor="customerName">Your name <span>(optional)</span></label><input id="customerName" autoComplete="name" value={trip.name} onChange={setTripField('name')} /></div>
-                <div className="field"><label htmlFor="customerEmail">Your email <span>(optional)</span></label><input id="customerEmail" type="email" autoComplete="email" placeholder="you@example.com" value={trip.email} onChange={setTripField('email')} /></div>
                 <div className="field field-full"><label htmlFor="tripNotes">Extra details <span>(optional)</span></label><textarea id="tripNotes" rows="3" placeholder="Stops, luggage or anything else we should know" value={trip.notes} onChange={setTripField('notes')} /></div>
               </div>
               <div className="form-footer"><p>Fare and availability are confirmed by the travel desk. No payment is taken here.</p><button className="button button-primary">Continue to WhatsApp <span aria-hidden="true">→</span></button></div>
@@ -628,7 +620,7 @@ function App() {
               {vehicles.filter((vehicle) => vehicle.self_drive).map((vehicle, index) => (
                 <article className={`vehicle-card ${rental?.vehicle.id === vehicle.id ? 'vehicle-card-active' : ''}`} key={vehicle.id}>
                   <VehiclePhoto category={vehicle.category} className={`vehicle-art vehicle-art-${index % 3}`} />
-                  <div className="vehicle-card-body"><h3>{CATEGORIES[vehicle.category] || 'Vehicle'}</h3><p>{vehicle.seats} seats{vehicle.transmission ? ` · ${vehicle.transmission}` : ''}{vehicle.fuel ? ` · ${vehicle.fuel}` : ''}</p><p className="vehicle-note">{vehicle.notes || 'Ask us about availability and features.'}</p><div className="vehicle-card-footer"><b>{vehicle.daily_rate ? `₹${vehicle.daily_rate}/day` : 'Rate on request'}</b><button className="button button-secondary button-small" onClick={() => { setRental({ vehicle, start: '', end: '', name: '', email: '' }); setRequestDraft(null); setTimeout(() => scrollToSection('rental-request'), 30); }}>Choose {CATEGORIES[vehicle.category] || 'vehicle'} <span aria-hidden="true">→</span></button></div></div>
+                  <div className="vehicle-card-body"><h3>{CATEGORIES[vehicle.category] || 'Vehicle'}</h3><p>{vehicle.seats} seats{vehicle.transmission ? ` · ${vehicle.transmission}` : ''}{vehicle.fuel ? ` · ${vehicle.fuel}` : ''}</p><p className="vehicle-note">{vehicle.notes || 'Ask us about availability and features.'}</p>                  <div className="vehicle-card-footer"><b>{vehicle.daily_rate ? `₹${vehicle.daily_rate}/day` : 'Rate on request'}</b><button className="button button-secondary button-small" onClick={() => { setRental({ vehicle, start: '', end: '', name: '' }); setRequestDraft(null); setTimeout(() => scrollToSection('rental-request'), 30); }}>Choose {CATEGORIES[vehicle.category] || 'vehicle'} <span aria-hidden="true">→</span></button></div></div>
                 </article>
               ))}
               {vehicles.length === 0 && !loadError && <p className="empty-state">Loading cars…</p>}
@@ -639,7 +631,6 @@ function App() {
                 <div className="field"><label htmlFor="rentalStart">Pickup date</label><input id="rentalStart" type="date" min={new Date().toISOString().slice(0, 10)} value={rental.start} onChange={(event) => { setRental((value) => ({ ...value, start: event.target.value, end: value.end < event.target.value ? event.target.value : value.end })); setRequestDraft(null); }} required /></div>
                 <div className="field"><label htmlFor="rentalEnd">Return date</label><input id="rentalEnd" type="date" min={rental.start || new Date().toISOString().slice(0, 10)} value={rental.end} onChange={(event) => { setRental((value) => ({ ...value, end: event.target.value })); setRequestDraft(null); }} required /></div>
                 <div className="field"><label htmlFor="renterName">Your name <span>(optional)</span></label><input id="renterName" autoComplete="name" value={rental.name} onChange={(event) => { setRental((value) => ({ ...value, name: event.target.value })); setRequestDraft(null); }} /></div>
-                <div className="field"><label htmlFor="renterEmail">Your email <span>(optional)</span></label><input id="renterEmail" type="email" autoComplete="email" value={rental.email} onChange={(event) => { setRental((value) => ({ ...value, email: event.target.value })); setRequestDraft(null); }} /></div>
               </div>
               <div className="form-footer"><p>Valid Indian driving licence and Aadhaar required at handover.</p><button className="button button-primary">Prepare WhatsApp request <span aria-hidden="true">→</span></button></div>
               {requestDraft?.subject === 'Self-drive rental request' && <RequestDraft config={config} {...requestDraft} />}
@@ -656,7 +647,7 @@ function App() {
                   <div className="fleet-card-content">
                     <div className="fleet-card-top"><span className="category-pill">{vehicle.seats} seats</span><span className={`availability ${vehicle.available ? 'available' : 'unavailable'}`}><i />{vehicle.available ? 'Available' : 'Check availability'}</span></div>
                     <h3>{CATEGORIES[vehicle.category] || 'Vehicle'}</h3><p>{vehicle.transmission || 'Comfortable ride'}{vehicle.fuel ? ` · ${vehicle.fuel}` : ''}</p><p className="vehicle-note">{vehicle.notes || 'Comfortable travel for your next journey.'}</p>
-                    <div className="fleet-card-bottom"><b>{vehicle.daily_rate ? `₹${vehicle.daily_rate}/day` : 'Rate on request'}</b><button className="text-button" onClick={() => vehicle.self_drive ? (setRental({ vehicle, start: '', end: '', name: '', email: '' }), scrollToSection('self-drive')) : openBooking('', '', vehicle.category)}>Select {CATEGORIES[vehicle.category] || 'vehicle'} →</button></div>
+                    <div className="fleet-card-bottom"><b>{vehicle.daily_rate ? `₹${vehicle.daily_rate}/day` : 'Rate on request'}</b><button className="text-button" onClick={() => vehicle.self_drive ? (setRental({ vehicle, start: '', end: '', name: '' }), scrollToSection('self-drive')) : openBooking('', '', vehicle.category)}>Select {CATEGORIES[vehicle.category] || 'vehicle'} →</button></div>
                   </div>
                 </article>
               ))}

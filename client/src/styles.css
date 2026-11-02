@@ -133,8 +133,9 @@ h1, h2, h3 { font-family: Manrope, 'DM Sans', sans-serif; }
 .form-footer { margin-top: 18px; padding-top: 18px; display: flex; justify-content: space-between; align-items: center; gap: 16px; border-top: 1px solid #edf0ec; }
 .form-footer p { max-width: 260px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
 .draft-panel { margin-top: 20px; padding: 17px; border: 1px solid #cfe7d7; border-radius: 13px; background: #f4fbf5; font-size: 12px; }
+.draft-panel>h3 { margin: 0; color: var(--ink); font-size: 17px; letter-spacing: -.025em; }
 .draft-panel>p { margin: 6px 0 13px; color: var(--muted); line-height: 1.6; }
-.draft-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.draft-actions { display: flex; align-items: center; }
 .draft-panel textarea { height: 130px; background: #fff; }
 .form-error { color: #a13830; font-size: 12px; }
 .rental-card { margin-top: 24px; scroll-margin-top: 120px; }

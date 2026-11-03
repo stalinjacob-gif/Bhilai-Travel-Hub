@@ -1,0 +1,11 @@
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^api(?:/.*)?$ api/index.php [QSA,L]
+</IfModule>
+
+<FilesMatch "^(config\.php|config\.example\.php|schema\.sql|README\.md)$">
+  Require all denied
+</FilesMatch>

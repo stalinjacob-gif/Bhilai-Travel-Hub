@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "bhilai-travel-hub",
+  "main": "worker.js",
+  "compatibility_date": "2026-11-15",
+  "routes": [
+    {
+      "pattern": "bhilaitravelhub.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.bhilaitravelhub.com",
+      "custom_domain": true
+    }
+  ],
+  "assets": {
+    "directory": "./public/build",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bhilai-travel-hub-db",
+      "database_id": "d3f0eb48-6ec5-403e-8291-98770c76163d",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "BUSINESS_PHONE": "+91 7999981204",
+    "WHATSAPP_NUMBER": "917999981204",
+    "BUSINESS_EMAIL": "",
+    "CANCEL_MID_PCT": "20"
+  }
+}

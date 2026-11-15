@@ -3,7 +3,7 @@ const path = require('node:path');
 
 module.exports = defineConfig({
   root: path.join(__dirname, 'client'),
-  publicDir: false,
+  publicDir: path.join(__dirname, 'client/public'),
   server: {
     host: '127.0.0.1',
     port: 5173,
